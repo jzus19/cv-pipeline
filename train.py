@@ -9,6 +9,7 @@ import torch.nn as nn
 import numpy
 
 from dataset import get_dataloaders
+from model import get_model
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]
@@ -24,7 +25,8 @@ def train(opt):
     train_dl, val_dl = get_dataloaders(opt)
 
     model = get_model()
-    optimizer, scheduler, weight_decay = get_hyp()
+        
+    #optimizer, scheduler, weight_decay = get_hyp()
 
 def parse_opt(known=False):
     parser = argparse.ArgumentParser()
