@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+import sys
 # Cell
 def conv(n_inputs, n_filters, kernel_size=3, stride=1, bias=False) -> torch.nn.Conv2d:
     """Creates a convolution layer for `XResNet`."""
@@ -102,4 +102,5 @@ def xresnet101(**kwargs): return XResNet.create(4, [3, 4, 23, 3], **kwargs)
 def xresnet152(**kwargs): return XResNet.create(4, [3, 8, 36, 3], **kwargs)
 
 def get_model(model_name="xresnet34"):
-    return xresnet34()
+    model = globals()[model_name]()
+    return model
