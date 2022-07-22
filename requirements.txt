@@ -13,3 +13,5 @@ typing_extensions==4.3.0
 urllib3==1.26.10
 joblib==1.1.0
 scikit-learn==1.1.1
+opencv-python==4.6.0
+albimentations==1.2.1

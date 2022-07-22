@@ -8,16 +8,20 @@ import torch
 import torch.nn as nn
 import numpy
 
-from utils import get_dataloaders
+from dataset import get_dataloaders
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]
 if str(ROOT) not in sys.path:
-    sys.path.append(str(ROOT))  # add ROOT to PATH
-ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
+    sys.path.append(str(ROOT))
+ROOT = Path(os.path.relpath(ROOT, Path.cwd()))
 
 def train(opt):
-    train_dl, val_dl = get_dataloaders(opt.data)
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda:0" if use_cuda else "cpu")
+    torch.backends.cudnn.benchmark = True
+
+    train_dl, val_dl = get_dataloaders(opt)
 
 def parse_opt(known=False):
     parser = argparse.ArgumentParser()
