@@ -23,6 +23,9 @@ def train(opt):
 
     train_dl, val_dl = get_dataloaders(opt)
 
+    model = get_model()
+    optimizer, scheduler, weight_decay = get_hyp()
+
 def parse_opt(known=False):
     parser = argparse.ArgumentParser()
     parser.add_argument('--cfg', type=str, default='', help='model.yaml path')
