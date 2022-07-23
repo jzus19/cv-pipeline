@@ -6,6 +6,7 @@ import copy
 from tqdm import tqdm
 from collections import defaultdict
 from colorama import Fore, Back, Style
+from enum import Enum
 b_ = Fore.BLUE
 sr_ = Style.RESET_ALL
 
@@ -17,15 +18,20 @@ def train_one_epoch(model, optimizer, scheduler, dataloader, criterion, device, 
     
     dataset_size = 0
     running_loss = 0.0
-    
+    top1 = AverageMeter('Acc@1', ':6.2f')
+    top5 = AverageMeter('Acc@5', ':6.2f')
     bar = tqdm(enumerate(dataloader), total=len(dataloader))
     for step, data in bar:
         images = data['image'].to(device, dtype=torch.float)
         labels = data['label'].to(device, dtype=torch.long)
         
-        batch_size = images.size(0)
-        
+        batch_size = images.size(0)        
         outputs = model(images)
+
+        acc1, acc5 = accuracy(outputs, labels, topk=(1, 5))
+        top1.update(acc1[0], images.size(0))
+        top5.update(acc5[0], images.size(0))
+
         loss = criterion(outputs, labels)            
         loss.backward()
     
@@ -42,9 +48,9 @@ def train_one_epoch(model, optimizer, scheduler, dataloader, criterion, device, 
         dataset_size += batch_size
         
         epoch_loss = running_loss / dataset_size
-        
         bar.set_postfix(Epoch=epoch, Train_Loss=epoch_loss,
-                        LR=optimizer.param_groups[0]['lr'])
+                        LR=optimizer.param_groups[0]['lr'], Accuracy=top1, Accuracy5=top5)
+        torch.cuda.empty_cache()
     gc.collect()
     
     return epoch_loss
@@ -54,7 +60,8 @@ def valid_one_epoch(model, optimizer, dataloader, criterion, device, epoch):
     
     dataset_size = 0
     running_loss = 0.0
-    
+    top1 = AverageMeter('Acc@1', ':6.2f')
+    top5 = AverageMeter('Acc@5', ':6.2f')
     bar = tqdm(enumerate(dataloader), total=len(dataloader))
     for step, data in bar:        
         images = data['image'].to(device, dtype=torch.float)
@@ -63,16 +70,21 @@ def valid_one_epoch(model, optimizer, dataloader, criterion, device, epoch):
         batch_size = images.size(0)
 
         outputs = model(images)
-        loss = criterion(outputs, labels)
-        
+        acc1, acc5 = accuracy(outputs, labels, topk=(1, 5))
+        top1.update(acc1[0], images.size(0))
+        top5.update(acc5[0], images.size(0))
+
+        loss = criterion(outputs, labels)        
         running_loss += (loss.item() * batch_size)
         dataset_size += batch_size
         
         epoch_loss = running_loss / dataset_size
         
         bar.set_postfix(Epoch=epoch, Valid_Loss=epoch_loss,
-                        LR=optimizer.param_groups[0]['lr'])   
-    
+                        LR=optimizer.param_groups[0]['lr'], Accuracy=top1, Accuracy5=top5) 
+
+        torch.cuda.empty_cache()
+
     gc.collect()
     
     return epoch_loss
@@ -121,3 +133,65 @@ def run_training(model, optimizer, scheduler, train_loader, valid_loader, criter
     model.load_state_dict(best_model_wts)
     
     return model, history
+
+class Summary(Enum):
+    NONE = 0
+    AVERAGE = 1
+    SUM = 2
+    COUNT = 3
+
+class AverageMeter(object):
+    """Computes and stores the average and current value"""
+
+    def __init__(self, name, fmt=':f', summary_type=Summary.AVERAGE):
+        self.name = name
+        self.fmt = fmt
+        self.summary_type = summary_type
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
+
+    def __str__(self):
+        fmtstr = '{name} {val' + self.fmt + '} ({avg' + self.fmt + '})'
+        return fmtstr.format(**self.__dict__)
+
+    def summary(self):
+        fmtstr = ''
+        if self.summary_type is Summary.NONE:
+            fmtstr = ''
+        elif self.summary_type is Summary.AVERAGE:
+            fmtstr = '{name} {avg:.3f}'
+        elif self.summary_type is Summary.SUM:
+            fmtstr = '{name} {sum:.3f}'
+        elif self.summary_type is Summary.COUNT:
+            fmtstr = '{name} {count:.3f}'
+        else:
+            raise ValueError('invalid summary type %r' % self.summary_type)
+
+        return fmtstr.format(**self.__dict__)
+
+def accuracy(output, target, topk=(1,)):
+    """Computes the accuracy over the k top predictions for the specified values of k"""
+    with torch.no_grad():
+        maxk = max(topk)
+        batch_size = target.size(0)
+
+        _, pred = output.topk(maxk, 1, True, True)
+        pred = pred.t()
+        correct = pred.eq(target.view(1, -1).expand_as(pred))
+
+        res = []
+        for k in topk:
+            correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True)
+            res.append(correct_k.mul_(100.0 / batch_size))
+        return res

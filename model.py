@@ -101,6 +101,6 @@ def xresnet50 (**kwargs): return XResNet.create(4, [3, 4,  6, 3], **kwargs)
 def xresnet101(**kwargs): return XResNet.create(4, [3, 4, 23, 3], **kwargs)
 def xresnet152(**kwargs): return XResNet.create(4, [3, 8, 36, 3], **kwargs)
 
-def get_model(model_name="xresnet34"):
+def get_model(model_name="xresnet101"):
     model = globals()[model_name]()
     return model
