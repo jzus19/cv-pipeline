@@ -57,35 +57,35 @@ def train_one_epoch(model, optimizer, scheduler, dataloader, criterion, device, 
 
 def valid_one_epoch(model, optimizer, dataloader, criterion, device, epoch):
     model.eval()
-    
-    dataset_size = 0
-    running_loss = 0.0
-    top1 = AverageMeter('Acc@1', ':6.2f')
-    top5 = AverageMeter('Acc@5', ':6.2f')
-    bar = tqdm(enumerate(dataloader), total=len(dataloader))
-    for step, data in bar:        
-        images = data['image'].to(device, dtype=torch.float)
-        labels = data['label'].to(device, dtype=torch.long)
-        
-        batch_size = images.size(0)
+    with torch.no_grad():
+        dataset_size = 0
+        running_loss = 0.0
+        top1 = AverageMeter('Acc@1', ':6.2f')
+        top5 = AverageMeter('Acc@5', ':6.2f')
+        bar = tqdm(enumerate(dataloader), total=len(dataloader))
+        for step, data in bar:        
+            images = data['image'].to(device, dtype=torch.float)
+            labels = data['label'].to(device, dtype=torch.long)
+            
+            batch_size = images.size(0)
 
-        outputs = model(images)
-        acc1, acc5 = accuracy(outputs, labels, topk=(1, 5))
-        top1.update(acc1[0], images.size(0))
-        top5.update(acc5[0], images.size(0))
+            outputs = model(images)
+            acc1, acc5 = accuracy(outputs, labels, topk=(1, 5))
+            top1.update(acc1[0], images.size(0))
+            top5.update(acc5[0], images.size(0))
 
-        loss = criterion(outputs, labels)        
-        running_loss += (loss.item() * batch_size)
-        dataset_size += batch_size
-        
-        epoch_loss = running_loss / dataset_size
-        
-        bar.set_postfix(Epoch=epoch, Valid_Loss=epoch_loss,
-                        LR=optimizer.param_groups[0]['lr'], Accuracy=top1, Accuracy5=top5) 
+            loss = criterion(outputs, labels)        
+            running_loss += (loss.item() * batch_size)
+            dataset_size += batch_size
+            
+            epoch_loss = running_loss / dataset_size
+            
+            bar.set_postfix(Epoch=epoch, Valid_Loss=epoch_loss,
+                            LR=optimizer.param_groups[0]['lr'], Accuracy=top1, Accuracy5=top5) 
 
-        torch.cuda.empty_cache()
+            torch.cuda.empty_cache()
 
-    gc.collect()
+        gc.collect()
     
     return epoch_loss
 
