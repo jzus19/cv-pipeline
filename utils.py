@@ -1,9 +1,9 @@
-import tqdm
 import os
 import sys
 import gc
 import time
 import copy
+from tqdm import tqdm
 from collections import defaultdict
 from colorama import Fore, Back, Style
 b_ = Fore.BLUE
@@ -25,7 +25,7 @@ def train_one_epoch(model, optimizer, scheduler, dataloader, criterion, device, 
         
         batch_size = images.size(0)
         
-        outputs = model(images, labels)
+        outputs = model(images)
         loss = criterion(outputs, labels)            
         loss.backward()
     
@@ -62,7 +62,7 @@ def valid_one_epoch(model, optimizer, dataloader, criterion, device, epoch):
         
         batch_size = images.size(0)
 
-        outputs = model(images, labels)
+        outputs = model(images)
         loss = criterion(outputs, labels)
         
         running_loss += (loss.item() * batch_size)
@@ -77,7 +77,7 @@ def valid_one_epoch(model, optimizer, dataloader, criterion, device, epoch):
     
     return epoch_loss
 
-def run_training(model, optimizer, scheduler, train_loader, valid_loader, device, num_epochs):
+def run_training(model, optimizer, scheduler, train_loader, valid_loader, criterion, device, num_epochs):
      
     if torch.cuda.is_available():
         print("[INFO] Using GPU: {}\n".format(torch.cuda.get_device_name()))
@@ -90,11 +90,11 @@ def run_training(model, optimizer, scheduler, train_loader, valid_loader, device
     for epoch in range(1, num_epochs + 1): 
         gc.collect()
         train_epoch_loss = train_one_epoch(model, optimizer, scheduler, 
-                                           dataloader=train_loader, 
-                                           device=device, epoch=epoch)
+                                           train_loader, criterion, 
+                                           device=device, epoch=num_epochs)
         
-        val_epoch_loss = valid_one_epoch(model, valid_loader, device=device, 
-                                         epoch=epoch)
+        val_epoch_loss = valid_one_epoch(model, optimizer, valid_loader,
+                                         criterion, device=device, epoch=num_epochs)
     
         history['Train Loss'].append(train_epoch_loss)
         history['Valid Loss'].append(val_epoch_loss)
