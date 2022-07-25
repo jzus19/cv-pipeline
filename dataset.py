@@ -59,20 +59,26 @@ def get_dataloaders(config):
     val_path = osp(config.data, "val")
     
     train_files = glob(train_path+"**/**/*.JPEG", recursive=True)
-    val_files = glob(val_path+"**/**/*.JPEG", recursive=True)
-    
+    val_files = glob(val_path+"**/**/*.JPEG", recursive=True)    
     files = train_files + val_files
-    le = LabelEncoder()
+
     classes = []
     labels = []
     for i, file in enumerate(files):
         clas = re.split('train|val', file)[1][1:10]
         classes.append(clas)
-    labels = le.fit_transform(classes)
-
-    with open("le.pkl", "wb") as fp:
-        joblib.dump(le, fp)
     
+    if config.checkpoint == "":
+        le = LabelEncoder()
+        labels = le.fit_transform(classes)
+        with open("le.pkl", "wb") as fp:
+            joblib.dump(le, fp)
+    
+    else:
+        with open ("le.pkl", "rb") as fp:
+            le = joblib.load(fp)
+        labels = le.transform(classes)
+
     train_classes, val_classes = classes[:len(train_files)], classes[len(train_files):]
     train_labels, val_labels = labels[:len(train_files)], labels[len(train_files):]
 
@@ -86,7 +92,7 @@ def get_dataloaders(config):
         
     train_dl = DataLoader(train_ds, batch_size=config.batch_size, shuffle=True, 
                             num_workers=8, drop_last=True, pin_memory=True)
-    val_dl = DataLoader(val_ds, batch_size=config.batch_size*2, num_workers=8)
+    val_dl = DataLoader(val_ds, batch_size=config.batch_size*2, shuffle=True, num_workers=8)
     
     return train_dl, val_dl
 
