@@ -24,7 +24,6 @@ def train(opt):
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda:0" if use_cuda else "cpu")
     logging.info("Device name:", device)
-    torch.backends.cudnn.benchmark = True
 
     train_dl, val_dl = get_dataloaders(opt)
 

@@ -7,6 +7,7 @@ from glob import glob
 import joblib
 import pandas as pd
 import cv2
+import numpy as np
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 import torch
@@ -67,16 +68,13 @@ def get_dataloaders(config):
     for i, file in enumerate(files):
         clas = re.split('train|val', file)[1][1:10]
         classes.append(clas)
-    
-    if config.checkpoint == "":
-        le = LabelEncoder()
+    le = LabelEncoder()
+    if config.checkpoint == "":        
         labels = le.fit_transform(classes)
-        with open("le.pkl", "wb") as fp:
-            joblib.dump(le, fp)
+        np.save('classes.npy', le.classes_)
     
     else:
-        with open ("le.pkl", "rb") as fp:
-            le = joblib.load(fp)
+        le.classes_ = np.load('classes.npy')
         labels = le.transform(classes)
 
     train_classes, val_classes = classes[:len(train_files)], classes[len(train_files):]
