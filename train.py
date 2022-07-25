@@ -9,10 +9,10 @@ import torch.nn as nn
 import numpy
 import pickle
 
-from dataset import get_dataloaders
-from model import get_model
-from hyps import get_hyps
-from utils import run_training
+from src.dataset import get_dataloaders
+from src.model import get_model
+from src.hyps import get_hyps
+from src.utils import run_training
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]

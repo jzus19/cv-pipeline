@@ -4,5 +4,4 @@ sber_env
 .env
 *.pkl
 *.log
-*.bin
-*.pt
+weights

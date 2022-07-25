@@ -6,15 +6,12 @@ import logging
 import argparse
 import torch
 import torch.nn as nn
-import numpy
-import pickle
 from glob import glob
-from model import get_model
-from hyps import get_hyps
-from utils import run_training
-from dataset import get_dataloaders
+from src.model import get_model
+from src.hyps import get_hyps
+from src.utils import AverageMeter, accuracy
+from src.dataset import get_dataloaders
 from tqdm import tqdm
-from utils import AverageMeter, accuracy
 import gc
 
 FILE = Path(__file__).resolve()
