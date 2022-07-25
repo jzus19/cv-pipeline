@@ -21,3 +21,4 @@ git+https://github.com/ayasyrev/model_constructor
 fastai==2.7.7
 fastai2==0.0.30
 gdown
+flask==2.1.3
