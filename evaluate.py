@@ -58,11 +58,8 @@ def evaluate(opt):
 
 def parse_opt(known=False):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cfg', type=str, default='', help='model.yaml path')
     parser.add_argument('--data', type=str, default=ROOT /'data/imagewoof2/', help='dataset path')
-    parser.add_argument('--epochs', type=int, default=50)
     parser.add_argument('--checkpoint', type=str, default="", help='checkpoint')
-    parser.add_argument('--debug', default="True", action=argparse.BooleanOptionalAction)
     parser.add_argument('--batch-size', type=int, default=4, help='total batch size for all GPUs, -1 for autobatch')
     opt = parser.parse_known_args()[0] if known else parser.parse_args()
     return opt
