@@ -5,3 +5,4 @@ sber_env
 *.pkl
 *.log
 *.bin
+*.pt

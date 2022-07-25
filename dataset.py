@@ -86,7 +86,7 @@ def get_dataloaders(config):
         
     train_dl = DataLoader(train_ds, batch_size=config.batch_size, shuffle=True, 
                             num_workers=8, drop_last=True, pin_memory=True)
-    val_dl = DataLoader(val_ds, batch_size=config.batch_size, num_workers=8, pin_memory=True)
+    val_dl = DataLoader(val_ds, batch_size=config.batch_size*2, num_workers=8)
     
     return train_dl, val_dl
 

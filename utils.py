@@ -32,7 +32,7 @@ def train_one_epoch(model, optimizer, scheduler, dataloader, criterion, device, 
         top1.update(acc1[0], images.size(0))
         top5.update(acc5[0], images.size(0))
 
-        loss = criterion(outputs, labels)            
+        loss = criterion(outputs, labels.long().cuda())            
         loss.backward()
     
         if (step + 1) % 1 == 0:
@@ -45,8 +45,9 @@ def train_one_epoch(model, optimizer, scheduler, dataloader, criterion, device, 
                 scheduler.step()
                 
         running_loss += (loss.item() * batch_size)
+        del loss
         dataset_size += batch_size
-        
+
         epoch_loss = running_loss / dataset_size
         bar.set_postfix(Epoch=epoch, Train_Loss=epoch_loss,
                         LR=optimizer.param_groups[0]['lr'], Accuracy=top1, Accuracy5=top5)
@@ -76,8 +77,8 @@ def valid_one_epoch(model, optimizer, dataloader, criterion, device, epoch):
 
             loss = criterion(outputs, labels)        
             running_loss += (loss.item() * batch_size)
+            del loss
             dataset_size += batch_size
-            
             epoch_loss = running_loss / dataset_size
             
             bar.set_postfix(Epoch=epoch, Valid_Loss=epoch_loss,
@@ -103,11 +104,11 @@ def run_training(model, optimizer, scheduler, train_loader, valid_loader, criter
         gc.collect()
         train_epoch_loss = train_one_epoch(model, optimizer, scheduler, 
                                            train_loader, criterion, 
-                                           device=device, epoch=num_epochs)
-        
+                                           device=device, epoch=epoch)
+        print("Train epoch loss:", train_epoch_loss) 
         val_epoch_loss = valid_one_epoch(model, optimizer, valid_loader,
-                                         criterion, device=device, epoch=num_epochs)
-    
+                                         criterion, device=device, epoch=epoch)
+        print("Val epoch loss:", val_epoch_loss) 
         history['Train Loss'].append(train_epoch_loss)
         history['Valid Loss'].append(val_epoch_loss)
                 
@@ -116,7 +117,7 @@ def run_training(model, optimizer, scheduler, train_loader, valid_loader, criter
             print(f"{b_}Validation Loss Improved ({best_epoch_loss} ---> {val_epoch_loss})")
             best_epoch_loss = val_epoch_loss
             best_model_wts = copy.deepcopy(model.state_dict())
-            PATH = "Loss{:.4f}_epoch{:.0f}.bin".format(best_epoch_loss, epoch)
+            PATH = "Loss{:.4f}_epoch{:.0f}.pt".format(best_epoch_loss, epoch)
             torch.save(model.state_dict(), PATH)
             # Save a model file from the current directory
             print(f"Model Saved{sr_}")

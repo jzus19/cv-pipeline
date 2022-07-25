@@ -1,6 +1,18 @@
 import torch
 import torch.nn as nn
 import sys
+from kornia.filters import MaxBlurPool2D
+from model_constructor.net import *
+from model_constructor.layers import SimpleSelfAttention, ConvLayer
+import math
+import torch
+import torch.functional as F
+from torch.optim.optimizer import Optimizer, required
+import itertools as it
+from fastai.basics import *
+from fastai.vision import *
+#from fastai.script import *
+
 # Cell
 def conv(n_inputs, n_filters, kernel_size=3, stride=1, bias=False) -> torch.nn.Conv2d:
     """Creates a convolution layer for `XResNet`."""
@@ -11,7 +23,7 @@ def conv(n_inputs, n_filters, kernel_size=3, stride=1, bias=False) -> torch.nn.C
 def conv_layer(n_inputs: int, n_filters: int,
                kernel_size: int = 3, stride=1,
                zero_batch_norm: bool = False, use_activation: bool = True,
-               activation: torch.nn.Module = nn.ReLU(inplace=True)) -> torch.nn.Sequential:
+               activation=Mish()) -> torch.nn.Sequential:
     """Creates a convolution block for `XResNet`."""
     batch_norm = nn.BatchNorm2d(n_filters)
     # initializer batch normalization to 0 if its the final conv layer
@@ -22,13 +34,13 @@ def conv_layer(n_inputs: int, n_filters: int,
 
 class XResNetBlock(nn.Module):
     """Creates the standard `XResNet` block."""
-    def __init__(self, expansion: int, n_inputs: int, n_hidden: int, stride: int = 1,
-                 activation: torch.nn.Module = nn.ReLU(inplace=True)):
+    def __init__(self, expansion: int, n_inputs: int, n_hidden: int, stride: int = 1, sa=True, 
+                  pool=MaxBlurPool2D(3, 2, 2, True), sym=False, activation=Mish()):
         super().__init__()
 
         n_inputs = n_inputs * expansion
         n_filters = n_hidden * expansion
-
+        self.reduce = noop if stride==1 else pool
         # convolution path
         if expansion == 1:
             layers = [conv_layer(n_inputs, n_hidden, 3, stride=stride),
@@ -38,8 +50,9 @@ class XResNetBlock(nn.Module):
                       conv_layer(n_hidden, n_hidden, 3, stride=stride),
                       conv_layer(n_hidden, n_filters, 1, zero_batch_norm=True, use_activation=False)]
 
+        if sa: layers.append(SimpleSelfAttention(n_filters, ks=1, sym=sym))
+        
         self.convs = nn.Sequential(*layers)
-
         # identity path
         if n_inputs == n_filters:
             self.id_conv = nn.Identity()
@@ -95,12 +108,21 @@ class XResNet(nn.Sequential):
         for l in module.children():
             XResNet._init_module(l)
 
+class Mish(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):  
+        #save 1 second per epoch with no x= x*() and then return x...just inline it.
+        return x *( torch.tanh(F.softplus(x))) 
+
 def xresnet18 (**kwargs): return XResNet.create(1, [2, 2,  2, 2], **kwargs)
 def xresnet34 (**kwargs): return XResNet.create(1, [3, 4,  6, 3], **kwargs)
 def xresnet50 (**kwargs): return XResNet.create(4, [3, 4,  6, 3], **kwargs)
 def xresnet101(**kwargs): return XResNet.create(4, [3, 4, 23, 3], **kwargs)
 def xresnet152(**kwargs): return XResNet.create(4, [3, 8, 36, 3], **kwargs)
 
-def get_model(model_name="xresnet101"):
+def get_model(model_name="xresnet50"):
     model = globals()[model_name]()
+    model[3] = MaxBlurPool2D(3, 2, 2, True)      
     return model
