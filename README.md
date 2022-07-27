@@ -15,7 +15,7 @@ docker run -it -p 5000:5000 cv-pipeline_flask
 
 * Flask interface 
 
-
+![Flask](apps_interface/flask_interface.png)
 
 # Telegram bot # 
 * https://t.me/imagewoof_classificator_bot
