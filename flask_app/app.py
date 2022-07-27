@@ -14,7 +14,8 @@ sys.path.insert(2, ".")
 from model import get_model
 from dataset import get_transformations
 # Variables 
-Model_weigths = ".pt"
+
+Model_weigths = "../Loss1.0944_epoch13.pt"
 
 
 # Declare a flask app
