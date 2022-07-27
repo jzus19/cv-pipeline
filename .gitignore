@@ -6,4 +6,4 @@ sber_env
 *.log
 *.pt
 weights
-bot_app
+heroku_bot
