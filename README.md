@@ -7,7 +7,7 @@ Arch: XResNet50 + Mish + MaxBlurPool + SA
 git clone git@github.com:jzus19/cv-pipeline.git
 ```
 ```
-docker-compose up
+docker-compose build
 ```
 ```
 docker run -it -p 5000:5000 cv-pipeline_flask 

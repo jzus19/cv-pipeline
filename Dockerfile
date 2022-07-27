@@ -16,7 +16,7 @@ RUN gdown https://drive.google.com/uc?id=1jT1Wpp5rB7Q3GNVQctHyVWJc66ZJq_Zy
 RUN rm -rf ~/.cache/pip && \
     pip install -r requirements.txt --no-cache-dir
 
-ENV PYTHONPATH "${PYTHONPATH}:/workspace/flask_app"
+ENV PYTHONPATH "${PYTHONPATH}:/workspace/flask_app/"
 WORKDIR /workspace/flask_app
 ENV PORT 5000
 EXPOSE $PORT
