@@ -14,4 +14,4 @@ docker run -it -p 5000:5000 cv-pipeline_flask
 ```
 
 # Telegram bot # 
-* https://t.me/imagewoof_classificator_bot *
+* https://t.me/imagewoof_classificator_bot
