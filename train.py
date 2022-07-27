@@ -43,10 +43,9 @@ def train(opt):
 
 def parse_opt(known=False):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cfg', type=str, default='', help='model.yaml path')
     parser.add_argument('--data', type=str, default=ROOT / 'data/imagewoof2/', help='dataset.yaml path')
     parser.add_argument('--epochs', type=int, default=50)
-    parser.add_argument('--optimizer', type=str, default="Adam", help='optimizer')
+    parser.add_argument('--optimizer', type=str, default="RAdam", help='optimizer')
     parser.add_argument('--scheduler', type=str, default="CosineAnnealingLR", help='scheduler')
     parser.add_argument('--checkpoint', type=str, default="", help='checkpoint')
     parser.add_argument('--debug', default="True", action=argparse.BooleanOptionalAction)

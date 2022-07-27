@@ -3,7 +3,7 @@ import sys
 import gc
 import time
 import copy
-from tqdm import tqdm
+from tqdm.notebook import tqdm
 from collections import defaultdict
 from colorama import Fore, Back, Style
 from enum import Enum

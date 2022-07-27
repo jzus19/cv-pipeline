@@ -13,8 +13,6 @@ sys.path.insert(1, '..\src')
 from model import get_model
 from dataset import get_transformations
 # Variables 
-# Change them if you are using custom model or pretrained model with saved weigths
-#Model_json = ".json"
 Model_weigths = ".pt"
 
 
@@ -83,12 +81,10 @@ def predict():
 
         # Make prediction
         prediction = model_predict(img, model)
-        print(prediction)
         # Serialize the result, you can add additional fields
         return jsonify(result=prediction)
     return None
 
 
 if __name__ == '__main__':
-    # app.run(port=5002)
-    app.run()
+    app.run(port=5000)

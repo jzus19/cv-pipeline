@@ -13,8 +13,9 @@ typing_extensions==4.3.0
 urllib3==1.26.10
 joblib==1.1.0
 scikit-learn==1.1.1
-opencv-python==4.6.0
-albimentations==1.2.1
+opencv-python==4.6.0.66
+opencv-python-headless==4.6.0.66
+albumentations==1.2.1
 tqdm==4.64.0
 git+https://github.com/kornia/kornia
 git+https://github.com/ayasyrev/model_constructor
