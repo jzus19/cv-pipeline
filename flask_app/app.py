@@ -9,7 +9,8 @@ from utils import base64_to_pil
 from flask import Flask, redirect, url_for, request, render_template, Response, jsonify, redirect
 import sys
 # insert at 1, 0 is the script path (or '' in REPL)
-sys.path.insert(1, '..\src')
+sys.path.insert(1, '../src/')
+sys.path.insert(2, ".")
 from model import get_model
 from dataset import get_transformations
 # Variables 
@@ -21,14 +22,15 @@ app = Flask(__name__)
 
 def get_ImageClassifierModel():
     model = get_model()
-    model.to("cuda:0")
-    model.load_state_dict(torch.load("../weights/Loss1.0944_epoch13.pt"))
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+    model.load_state_dict(torch.load("../Loss1.0944_epoch13.pt", map_location=device))
     model.eval()
-    return model  
+    return model, device
     
 
 
-def model_predict(img, model):
+def model_predict(img, model, device):
     '''
     Prediction Function for model.
     Arguments: 
@@ -50,7 +52,7 @@ def model_predict(img, model):
     transforms = get_transformations()
     img = np.array(img)
     img = transforms["valid"](image=img)["image"].unsqueeze(0)
-    prediction = model(img.to("cuda:0"))
+    prediction = model(img.to(device))
     prediction = torch.argmax(prediction, dim=1)
     le = LabelEncoder()
     le.classes_ = np.load('../classes.npy')
@@ -77,14 +79,14 @@ def predict():
         img = base64_to_pil(request.json)
         
         # initialize model
-        model = get_ImageClassifierModel()
+        model, device = get_ImageClassifierModel()
 
         # Make prediction
-        prediction = model_predict(img, model)
+        prediction = model_predict(img, model, device)
         # Serialize the result, you can add additional fields
         return jsonify(result=prediction)
     return None
 
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=True)

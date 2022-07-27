@@ -11,7 +11,6 @@ from torch.optim.optimizer import Optimizer, required
 import itertools as it
 from fastai.basics import *
 from fastai.vision import *
-#from fastai.script import *
 
 # Cell
 def conv(n_inputs, n_filters, kernel_size=3, stride=1, bias=False) -> torch.nn.Conv2d:
