@@ -25,7 +25,7 @@ def get_ImageClassifierModel():
     model = get_model()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
-    model.load_state_dict(torch.load("../Loss1.0944_epoch13.pt", map_location=device))
+    model.load_state_dict(torch.load(Model_weigths, map_location=device))
     model.eval()
     return model, device
     
