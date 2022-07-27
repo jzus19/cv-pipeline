@@ -13,5 +13,9 @@ docker-compose up
 docker run -it -p 5000:5000 cv-pipeline_flask 
 ```
 
+* Flask interface 
+![alt text](https://github.com/jzus19/cv-pipeline/blob/main/flask_interface.png?raw=true)
+
+
 # Telegram bot # 
 * https://t.me/imagewoof_classificator_bot
