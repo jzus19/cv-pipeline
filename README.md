@@ -1,10 +1,11 @@
 # cv-pipeline
 Image woof classification
-Arch: XResNet50 + Mish + MaxBlurPool + SA
+Arch: XResNet50 + Mish + MaxBlurPool + SA + Ranger Optimizer (RAdam + LookAHead)
+* 4 bs / 15 epochs
+Accuracy@1: 0.775 
+Accuracy@5: 0.975
 
-Accuracy@1: 0.78
-Accuracy@5: 0.99
-
+Graphics and Metrics in visualization.ipynb
 # Running Flask app with Docker #
 ``` 
 git clone git@github.com:jzus19/cv-pipeline.git
