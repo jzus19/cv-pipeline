@@ -2,6 +2,9 @@
 Image woof classification
 Arch: XResNet50 + Mish + MaxBlurPool + SA
 
+Accuracy@1: 0.78
+Accuracy@5: 0.99
+
 # Running Flask app with Docker #
 ``` 
 git clone git@github.com:jzus19/cv-pipeline.git
@@ -22,3 +25,11 @@ docker run -it -p 5000:5000 cv-pipeline_flask
 
 * Telegram Interface
 ![TG](apps_interface/tg_interface.png)
+
+# Run trainning #
+```
+python install -r requirements.txt
+```
+```
+python train.py
+```
