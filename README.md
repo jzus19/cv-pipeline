@@ -37,7 +37,7 @@ python install -r requirements.txt
 python train.py
 ```
 
-## You can run tg bot yourself 
+## You can run tg bot yourself but place weights in root folder 
 ``` 
 cd bot_app
 ```
