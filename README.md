@@ -6,6 +6,8 @@ Accuracy@1: 0.775
 Accuracy@5: 0.975
 
 Graphics and Metrics in visualization.ipynb
+
+* weights https://drive.google.com/file/d/1jT1Wpp5rB7Q3GNVQctHyVWJc66ZJq_Zy/view?usp=sharing
 # Running Flask app with Docker #
 ``` 
 git clone git@github.com:jzus19/cv-pipeline.git
@@ -33,4 +35,12 @@ python install -r requirements.txt
 ```
 ```
 python train.py
+```
+
+## You can run tg bot yourself 
+``` 
+cd bot_app
+```
+```
+python bot.py
 ```
